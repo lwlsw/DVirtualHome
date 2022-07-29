@@ -240,6 +240,51 @@
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>footerText</key>
+			<string>振动时长和振动强度只对标准振动有效。</string>
+		</dict>
+
+
+		<dict>
+			<key>cell</key>
+			<string>PSLinkListCell</string>
+			<key>defaults</key>
+			<string>com.dgh0st.dvirtualhome</string>
+			<key>default</key>
+			<string>Medium</string>
+			<key>detail</key>
+			<string>PSListItemsController</string>
+			<key>key</key>
+			<string>LMKStrength</string>
+			<key>label</key>
+			<string>振动类型</string>
+			<key>validTitles</key>
+				<array>
+					<string>轻</string>
+					<string>中</string>
+					<string>重</string>
+					<string>成功</string>
+					<string>警告</string>
+					<string>错误</string>
+					<string>标准</string>
+				</array>
+			<key>validValues</key>
+			<array>
+				<string>Light</string>
+				<string>Medium</string>
+				<string>Heavy</string>
+				<string>Success</string>
+				<string>Warning</string>
+				<string>Error</string>
+				<string>Standard</string>
+			</array>
+			<key>PostNotification</key>
+			<string>com.dgh0st.dvirtualhome/settingschanged</string>
+		</dict>
+
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
 			<string>Set the duration for the vibration.</string>
 			<key>label</key>
 			<string>Vibration Duration</string>

@@ -1,5 +1,9 @@
 #include "DVirtualHome.h"
 #include <notify.h>
+#include <sys/utsname.h>
+
+
+static NSString* VibrStrength = @"Medium";
 
 static void preferencesChanged() {
 	CFPreferencesAppSynchronize((CFStringRef)kIdentifier);
@@ -27,10 +31,15 @@ static void preferencesChanged() {
 		isVibrationEnabled =  [prefs objectForKey:@"isVibrationEnabled"] ? [[prefs objectForKey:@"isVibrationEnabled"] boolValue] : YES;
 		vibrationIntensity =  [prefs objectForKey:@"vibrationIntensity"] ? [[prefs objectForKey:@"vibrationIntensity"] floatValue] : 0.75;
 		vibrationDuration =  [prefs objectForKey:@"vibrationDuration"] ? [[prefs objectForKey:@"vibrationDuration"] intValue] : 30;
+		VibrStrength = [prefs objectForKey:@"LMKStrength"] ? [[prefs objectForKey:@"LMKStrength"] stringValue] : VibrStrength;
+
 	}
 	[prefs release];
 
 }
+
+// 来自以下项目
+// https://github.com/p2kdev/LetMeKnow/blob/f50076ab79ac2f5dbaf873262962e40b03259a98/Tweak.xm#L22
 
 static void hapticVibe() {
 	NSMutableDictionary *vibDict = [NSMutableDictionary dictionary];
@@ -41,6 +50,76 @@ static void hapticVibe() {
 	[vibDict setObject:[NSNumber numberWithFloat:vibrationIntensity] forKey:@"Intensity"];
 	AudioServicesPlaySystemSoundWithVibration(kSystemSoundID_Vibrate, nil, vibDict);
 }
+
+
+static void PerfromVibration()
+{
+  BOOL IsDeviceNewer = true;
+  struct utsname systemInfo;
+  uname(&systemInfo);
+  NSString *pl = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
+
+  if ([pl isEqualToString:@"iPhone6,1"] ||
+      [pl isEqualToString:@"iPhone6,2"] ||
+      [pl isEqualToString:@"iPhone7,1"] ||
+      [pl isEqualToString:@"iPhone7,2"] ||
+      [pl isEqualToString:@"iPhone8,1"] ||
+      [pl isEqualToString:@"iPhone8,2"] ||
+      [pl isEqualToString:@"iPhone8,4"])
+  {
+      IsDeviceNewer = false;
+  }
+
+  if (IsDeviceNewer)
+  {
+
+    if ([VibrStrength isEqualToString:@"Heavy"])
+    {
+      UIImpactFeedbackGenerator *myGen = [[UIImpactFeedbackGenerator alloc] init];
+      [myGen initWithStyle:(UIImpactFeedbackStyleHeavy)];
+      [myGen impactOccurred];
+    }
+    else if ([VibrStrength isEqualToString:@"Light"])
+    {
+      UIImpactFeedbackGenerator *myGen = [[UIImpactFeedbackGenerator alloc] init];
+      [myGen initWithStyle:(UIImpactFeedbackStyleLight)];
+      [myGen impactOccurred];
+    }
+    else if ([VibrStrength isEqualToString:@"Success"])
+    {
+      UINotificationFeedbackGenerator *myGen = [[UINotificationFeedbackGenerator alloc] init];
+      [myGen notificationOccurred:UINotificationFeedbackTypeSuccess];
+    }
+    else if ([VibrStrength isEqualToString:@"Warning"])
+    {
+      UINotificationFeedbackGenerator *myGen = [[UINotificationFeedbackGenerator alloc] init];
+      [myGen notificationOccurred:UINotificationFeedbackTypeWarning];
+    }
+    else if ([VibrStrength isEqualToString:@"Error"])
+    {
+      UINotificationFeedbackGenerator *myGen = [[UINotificationFeedbackGenerator alloc] init];
+      [myGen notificationOccurred:UINotificationFeedbackTypeError];
+    }
+    else if ([VibrStrength isEqualToString:@"Standard"])
+    {
+    //   AudioServicesPlaySystemSound(1352);
+		hapticVibe();
+    }
+    else
+    {
+      UIImpactFeedbackGenerator *myGen = [[UIImpactFeedbackGenerator alloc] init];
+      [myGen initWithStyle:(UIImpactFeedbackStyleMedium)];
+      [myGen impactOccurred];
+    }
+
+    //NSLog(@"[LetMeKnow] - Vibration Strength - %@",VibrStrength);
+  }
+  else
+  {
+      AudioServicesPlaySystemSound(1352);
+  }
+}
+
 
 // iOS 13+ doesn't currently support disable actions during lockscreen biometric authentication
 static BOOL disableActions = NO;
@@ -317,7 +396,7 @@ static NSString *currentApplicationIdentifier = nil;
 	isLongPressGestureActive = NO;
 
 	if (isEnabled && isVibrationEnabled && arg1.state == UIGestureRecognizerStateBegan) {
-		hapticVibe();
+        PerfromVibration();
 	}
 }
 
